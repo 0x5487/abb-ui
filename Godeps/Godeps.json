@@ -1,0 +1,30 @@
+{
+	"ImportPath": "github.com/jasonsoft/abb-ui",
+	"GoVersion": "go1.9",
+	"GodepVersion": "v79",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/jasonsoft/log",
+			"Rev": "eae6bb53a3b8bcdc198541c1ed0e88230a1bc626"
+		},
+		{
+			"ImportPath": "github.com/jasonsoft/log/handlers/console",
+			"Rev": "eae6bb53a3b8bcdc198541c1ed0e88230a1bc626"
+		},
+		{
+			"ImportPath": "github.com/jasonsoft/log/handlers/gelf",
+			"Rev": "eae6bb53a3b8bcdc198541c1ed0e88230a1bc626"
+		},
+		{
+			"ImportPath": "github.com/jasonsoft/napnap",
+			"Rev": "9be0e54d96ac2ebe34f749d3a891767a469bb4e9"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "4c78c975fe7c825c6d1466c42be594d1d6f3aba6"
+		}
+	]
+}

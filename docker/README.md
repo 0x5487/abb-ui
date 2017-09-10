@@ -1,0 +1,1 @@
+docker build -t jasonsoft/abb-web -f docker/dockerfile .

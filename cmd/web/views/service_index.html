@@ -1,0 +1,104 @@
+<html>
+
+<head>
+    <title>Service List</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/3.6.0/superagent.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <span>Service List</span><button v-on:click="reload()">reload</button>
+        <table border=1>
+            <tr>
+                <td>status</td>
+                <td>name</td>
+                <td>image</td>
+                <td>mode</td>
+                <td>ports</td>
+                <td></td>
+            </tr>
+            <template v-for="svc in services">
+                <tr>
+                    <td>${ svc.deployment_status.available_replicas}/${ svc.deployment_status.replicas}</td>
+                    <td>${ svc.name }</td>
+                    <td>${ svc.spec.image} <br/> <span style="color:gray"> ${ svc.deployment_status.image}</span>
+                    </td>
+                    <td>${ svc.spec.deploy.mode}</td>
+                    <td>
+                        <span v-for="port in svc.spec.ports">
+                            ${ port.published }:${ port.target}
+                        </span><br/>
+                    </td>
+                    <td><button v-on:click="redeploy(svc)">redeploy</button><button v-on:click="stop(svc)">stop</button><br/>
+                        <span style="color:red" v-if="svc.deployment_status.update_state == 'updating'">
+                                updating
+                        </span>
+                    </td>
+                </tr>
+            </template>
+
+        </table>
+    </div>
+</body>
+
+<script>
+    var request = superagent;
+    let apiHost = "{{ .APIHost }}";
+    let serviceVM = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            message: 'Hello Vue!',
+            services: [
+                // { id: 1, name: "cmapi", image: "reg.paradise-soft.com.tw:5000/cmapi", mode: "replicated" },
+                // { id: 2, name: "cmvendor", image: "reg.paradise-soft.com.tw:5000/cmvendor", mode: "replicated" }
+            ]
+        },
+        mounted: function () {
+            this.reload();
+        },
+        methods: {
+            redeploy: function (svc) {
+                console.log("redeploy")
+                let self = this;
+                let url = apiHost + '/v1/clusters/dev/services/' + svc.name + "/redeploy"
+                request
+                    .post(url)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        }
+                    });
+            },
+            stop: function (svc) {
+                console.log("stop")
+                let self = this;
+                let url = apiHost + '/v1/clusters/dev/services/' + svc.name + "/stop"
+                request
+                    .post(url)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        }
+                    });
+            },
+            reload: function () {
+                console.log("reload")
+                let self = this;
+                request
+                    .get(apiHost + '/v1/clusters/dev/services')
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        } else {
+                            self.services = resp.body.data
+                        }
+                    });
+            }
+        }
+    });
+
+</script>
+
+</html>
