@@ -36,7 +36,7 @@ func main() {
 	signal.Notify(stopChan, os.Interrupt, os.Kill)
 
 	nap := napnap.New()
-	nap.SetRender("./views/*")
+	nap.SetRender("./templates")
 	nap.Use(napnap.NewHealth())
 	nap.Use(napnap.NewStatic("./public")) // use working directory
 	//nap.Use(abb.NewErrorHandlingMiddleware())
@@ -55,7 +55,7 @@ func main() {
 	<-stopChan
 	log.Info("Shutting down server...")
 
-	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	httpEngine.Shutdown(ctx)
 
 	log.Info("gracefully stopped")

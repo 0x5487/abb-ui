@@ -1,0 +1,56 @@
+{{template "layout" .}} {{define "head"}}
+<title>Service logs</title>
+{{ end}} {{define "content"}} {{template "service_navbar" .}}
+<button id="btnReload" v-on:click="getServiceLogs()">reload</button>
+<div id="logs" v-html="logs">
+
+</div>
+{{end}} {{define "js"}}
+
+<script>
+    var request = superagent;
+    let apiHost = "{{ .APIHost }}";
+    let clusterID = "{{ .ClusterID }}";
+    let serviceID = "{{ .ServiceID }}";
+
+    let vm = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            logs: ""
+        },
+        mounted: function () {
+            this.pageLoad();
+        },
+        methods: {
+            pageLoad: function () {
+                console.log("pageLoad")
+                let self = this;
+
+                self.getServiceLogs();
+            },
+            getServiceLogs: function () {
+                console.log("getServiceLogs")
+                let self = this;
+                request
+                    .get(apiHost + '/v1/clusters/' + clusterID + '/services/' + serviceID + '/logs')
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        } else {
+                            self.logs = "";
+                            var lines = resp.text.split('\n');
+                            for (var i = 0; i < lines.length; i++) {
+                                self.logs += lines[i] + "<br/>"
+                            }
+                        }
+                    });
+            }
+        }
+    });
+
+</script>
+
+
+
+{{end}}

@@ -1,0 +1,119 @@
+{{template "layout" .}} {{define "head"}}
+<title>Service List</title>
+{{ end}} {{define "content"}}
+<div>
+    <span>clusters:</span>
+    <select v-model="selected_cluster">
+            <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
+        </select>
+</div>
+
+
+<span>Service Lists</span><button v-on:click="reload()">reload</button>
+<table border=1>
+    <tr>
+        <td>status</td>
+        <td>name</td>
+        <td>image</td>
+        <td>mode</td>
+        <td>ports</td>
+        <td></td>
+    </tr>
+    <template v-for="svc in services">
+        <tr>
+            <td>${ svc.deployment_status.available_replicas}/${ svc.deployment_status.replicas}</td>
+            <td><a :href="'/services/' + svc.name + '?cluster=' + selected_cluster">${ svc.name }</a></td>
+            <td>${ svc.spec.image} <br/> <span style="color:gray"> ${ svc.deployment_status.image}</span>
+            </td>
+            <td>${ svc.spec.deploy.mode}</td>
+            <td>
+                <span v-for="port in svc.spec.ports">
+                        ${ port.published }:${ port.target}
+                    </span><br/>
+            </td>
+            <td><button v-on:click="redeploy(svc)">redeploy</button><button v-on:click="stop(svc)">stop</button><br/>
+                <span style="color:red" v-if="svc.deployment_status.update_state == 'updating'">
+                            updating
+                    </span>
+            </td>
+        </tr>
+    </template>
+
+</table>
+{{end}} {{define "js"}}
+<script>
+    var request = superagent;
+    let apiHost = "{{ .APIHost }}";
+
+    let vm = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            selected_cluster: "{{ .ClusterID }}",
+            clusters: [],
+            services: []
+        },
+        mounted: function () {
+            this.page_load();
+        },
+        methods: {
+            redeploy: function (svc) {
+                console.log("redeploy")
+                let self = this;
+                let url = apiHost + '/v1/clusters/' + self.selected_cluster + '/services/' + svc.name + "/redeploy"
+                request
+                    .post(url)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        }
+                    });
+            },
+            stop: function (svc) {
+                console.log("stop")
+                let self = this;
+                let url = apiHost + '/v1/clusters/' + self.selected_cluster + '/services/' + svc.name + "/stop"
+                request
+                    .post(url)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        }
+                    });
+            },
+            page_load: function () {
+                console.log("page_load")
+                let self = this;
+
+                // get clusters
+                request
+                    .get(apiHost + '/v1/clusters')
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('oh no! error');
+                        } else {
+                            self.clusters = resp.body.data
+
+                        }
+                    });
+
+                self.reload();
+            },
+            reload: function () {
+                console.log("reload")
+                let self = this;
+                request
+                    .get(apiHost + '/v1/clusters/' + self.selected_cluster + '/services')
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        } else {
+                            self.services = resp.body.data
+                        }
+                    });
+            }
+        }
+    });
+
+</script>
+{{end}}

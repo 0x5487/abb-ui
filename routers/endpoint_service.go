@@ -3,6 +3,7 @@ package routers
 import (
 	"html/template"
 
+	"github.com/jasonsoft/abb-ui/types"
 	"github.com/jasonsoft/log"
 	"github.com/jasonsoft/napnap"
 )
@@ -11,19 +12,57 @@ func NewRouter() *napnap.Router {
 	router := napnap.NewRouter()
 
 	// service
+	router.Get("/services/:service_id", serviceGetEndpoint)
+	router.Get("/services/:service_id/logs", serviceLogsGetEndpoint)
 	router.Get("/services", serviceListEndpoint)
 
 	return router
 }
 
-type ApiConfig struct {
-	APIHost template.JS
+func serviceListEndpoint(c *napnap.Context) {
+	log.Debug("serviceListEndpoint")
+	clusterName := c.Query("cluster")
+
+	pageData := types.ServiceListPageData{
+		ClusterID: clusterName,
+		APIHost:   template.JS(_config.APIHost),
+	}
+
+	err := c.Render(200, "service_list.html", pageData)
+	if err != nil {
+		log.Errorf("list render err: %v", err)
+	}
 }
 
-func serviceListEndpoint(c *napnap.Context) {
-	apiConfig := ApiConfig{
-		APIHost: template.JS(_config.APIHost),
+func serviceGetEndpoint(c *napnap.Context) {
+	log.Debug("serviceGetEndpoint")
+	serviceID := c.Param("service_id")
+	clusterName := c.Query("cluster")
+
+	pageData := types.ServiceGetPageData{
+		ClusterID: clusterName,
+		ServiceID: serviceID,
 	}
-	log.Infof("api: %s", apiConfig.APIHost)
-	c.Render(200, "service_index.html", apiConfig)
+
+	err := c.Render(200, "service_detail.html", pageData)
+	if err != nil {
+		log.Error(err)
+	}
+}
+
+func serviceLogsGetEndpoint(c *napnap.Context) {
+	log.Debug("serviceLogsGetEndpoint")
+	serviceID := c.Param("service_id")
+	clusterID := c.Query("cluster")
+
+	pageData := types.ServiceGetPageData{
+		ClusterID: clusterID,
+		ServiceID: serviceID,
+		APIHost:   template.JS(_config.APIHost),
+	}
+
+	err := c.Render(200, "service_logs.html", pageData)
+	if err != nil {
+		log.Error(err)
+	}
 }

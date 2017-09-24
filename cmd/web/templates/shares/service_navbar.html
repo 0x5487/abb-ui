@@ -1,0 +1,11 @@
+{{define "service_navbar"}}
+
+<div>
+    <span><a href="/services?cluster={{.ClusterID}}">services</a> >> {{ .ServiceID}}</span>
+</div>
+
+<ul>
+    <li><a href="/services/{{ .ServiceID }}?cluster={{.ClusterID}}">detail</a></li>
+    <li><a href="/services/{{ .ServiceID }}/logs?cluster={{.ClusterID}}">logs</a></li>
+</ul>
+{{end}}
