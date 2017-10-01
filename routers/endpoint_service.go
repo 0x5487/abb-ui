@@ -12,7 +12,7 @@ func NewRouter() *napnap.Router {
 	router := napnap.NewRouter()
 
 	// service
-	router.Get("/services/:service_id", serviceGetEndpoint)
+	router.Get("/services/:service_id", serviceDetailEndpoint)
 	router.Get("/services/:service_id/logs", serviceLogsGetEndpoint)
 	router.Get("/services", serviceListEndpoint)
 
@@ -34,14 +34,15 @@ func serviceListEndpoint(c *napnap.Context) {
 	}
 }
 
-func serviceGetEndpoint(c *napnap.Context) {
-	log.Debug("serviceGetEndpoint")
+func serviceDetailEndpoint(c *napnap.Context) {
+	log.Debug("serviceDetailEndpoint")
 	serviceID := c.Param("service_id")
 	clusterName := c.Query("cluster")
 
 	pageData := types.ServiceGetPageData{
 		ClusterID: clusterName,
 		ServiceID: serviceID,
+		APIHost:   template.JS(_config.APIHost),
 	}
 
 	err := c.Render(200, "service_detail.html", pageData)

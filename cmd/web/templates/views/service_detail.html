@@ -6,6 +6,72 @@
         
     </textarea>
     <button>Save</button>
+    <p>Tasks</p>
+    <div id="tasks">
+        <table border=1>
+            <tr>
+                <td>name</td>
+                <td>state</td>
+                <td>age</td>
+                <td>message</td>
+            </tr>
+            <template v-for="task in tasks">
+                <tr>
+                    <td>${ task.name } </td>
+                    <td>${ task.status.state }</td>
+                    <td>${ task.age} </td>
+                    <td>${ task.status.message }</td>
+                </tr>
+            </template>
+
+        </table>
+    </div>
 </div>
 
-{{end}} {{define "js"}} {{end}}
+{{end}} {{define "js"}}
+<script>
+    var request = superagent;
+    let apiHost = "{{ .APIHost }}";
+    let clusterID = "{{ .ClusterID }}";
+    let serviceID = "{{ .ServiceID }}";
+
+    let vm = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            tasks: []
+        },
+        mounted: function () {
+            this.pageLoad();
+        },
+        methods: {
+            pageLoad: function () {
+                console.log("=== begin pageLoad ===")
+                let self = this;
+
+                self.getTasks();
+            },
+            getTasks: function () {
+                console.log("=== begin getTasks ===")
+                let self = this;
+                request
+                    .get(apiHost + '/v1/clusters/' + clusterID + '/tasks?service_id=' + serviceID)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert('Oh no! error');
+                        } else {
+                            self.tasks = resp.body.data
+
+                            self.tasks.forEach(function (element) {
+                                element.age = moment(element.status.timestamp).fromNow();
+                            });
+                        }
+                    });
+
+
+            }
+        }
+    });
+
+</script>
+{{end}}
