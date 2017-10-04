@@ -70,8 +70,9 @@
                 }
 
                 request
-                    .post(apiHost + '/v1/clusters/' + cID + '/services/' + svcID)
-                    .send(self.svcJSON)
+                    .put(apiHost + '/v1/clusters/' + cID + '/services/' + svcID)
+                    .set('Content-Type', 'application/json')
+                    .send(svcJSON)
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
                             alert(err);
