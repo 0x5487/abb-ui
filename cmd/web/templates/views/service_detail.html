@@ -1,11 +1,15 @@
 {{template "layout" .}} {{define "head"}}
 <title>Service Detail</title>
 {{ end}} {{define "content"}} {{template "service_navbar" .}}
+<h3><span id="lblMessage">${ message }</span></h3>
 <div id="detail">
-    <textarea>
+    <textarea id="txtCode" style="width: 1000; height: 600" v-model="service">
         
     </textarea>
-    <button>Save</button>
+    <p>
+        <button v-on:click="save()">Save</button>
+    </p>
+
     <p>Tasks</p>
     <div id="tasks">
         <table border=1>
@@ -32,13 +36,15 @@
 <script>
     var request = superagent;
     let apiHost = "{{ .APIHost }}";
-    let clusterID = "{{ .ClusterID }}";
-    let serviceID = "{{ .ServiceID }}";
+    let cID = "{{ .ClusterID }}";
+    let svcID = "{{ .ServiceID }}";
 
     let vm = new Vue({
         el: '#app',
         delimiters: ['${', '}'],
         data: {
+            message: "",
+            service: "",
             tasks: []
         },
         mounted: function () {
@@ -49,16 +55,56 @@
                 console.log("=== begin pageLoad ===")
                 let self = this;
 
-                self.getTasks();
+                self.getService(cID, svcID);
+                self.getTasks(cID, svcID);
             },
-            getTasks: function () {
+            save: function () {
+                let self = this;
+                let svcJSON = {};
+
+                try {
+                    svcJSON = JSON.parse(self.service);
+                } catch (err) {
+                    alert(err);
+                    return
+                }
+
+                request
+                    .post(apiHost + '/v1/clusters/' + cID + '/services/' + svcID)
+                    .send(self.svcJSON)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert(err);
+                        } else {
+                            self.message = "success";
+                        }
+                    });
+            },
+            getService: function (clusterID, serviceID) {
+                console.log("=== begin getService ===")
+                let self = this;
+                // get service
+                request
+                    .get(apiHost + '/v1/clusters/' + clusterID + '/services/' + serviceID)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert(err);
+                        } else {
+                            self.service = JSON.stringify(resp.body, null, 2);
+                        }
+                    });
+
+
+            },
+            getTasks: function (clusterID, serviceID) {
                 console.log("=== begin getTasks ===")
                 let self = this;
+                // list task
                 request
                     .get(apiHost + '/v1/clusters/' + clusterID + '/tasks?service_id=' + serviceID)
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert('Oh no! error');
+                            alert(err);
                         } else {
                             self.tasks = resp.body.data
 
