@@ -9,10 +9,11 @@
     <div id="app">
         {{ template "content" .}}
     </div>
-    <script src="https://momentjs.com/downloads/moment.js"></script>
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/3.6.0/superagent.min.js"></script>
-    {{ template "js" .}}
+    <script src="http://underscorejs.org/underscore-min.js" text/javascript></script>
+    <script src="https://momentjs.com/downloads/moment.js" text/javascript></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/superagent/3.6.0/superagent.min.js" text/javascript></script>
+    <script src="https://unpkg.com/vue" text/javascript></script>
+    <script src="/scripts/utils.js" text/javascript></script> {{ template "js" .}}
 </body>
 
 </html>

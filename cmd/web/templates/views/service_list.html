@@ -4,12 +4,13 @@
 <div>
     <span>clusters:</span>
     <select v-model="selected_cluster">
-            <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
-        </select>
+        <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
+    </select>
 </div>
 
 
-<span>Service Lists</span><button v-on:click="reload()">reload</button>
+<span>Service Lists</span>
+<button v-on:click="reload()">reload</button>
 <table border=1>
     <tr>
         <td>status</td>
@@ -22,19 +23,27 @@
     <template v-for="svc in services">
         <tr>
             <td>${ svc.deployment_status.available_replicas}/${ svc.deployment_status.replicas}</td>
-            <td><a :href="'/services/' + svc.name + '?cluster=' + selected_cluster">${ svc.name }</a></td>
-            <td>${ svc.spec.image} <br/> <span style="color:gray"> ${ svc.deployment_status.image}</span>
+            <td>
+                <a :href="'/services/' + svc.name + '?cluster=' + selected_cluster">${ svc.name }</a>
+            </td>
+            <td>${ svc.spec.image}
+                <br/>
+                <span style="color:gray"> ${ svc.deployment_status.image}</span>
             </td>
             <td>${ svc.spec.deploy.mode}</td>
             <td>
                 <span v-for="port in svc.spec.ports">
-                        ${ port.published }:${ port.target}
-                    </span><br/>
+                    ${ port.published }:${ port.target}
+                </span>
+                <br/>
             </td>
-            <td><button v-on:click="redeploy(svc)">redeploy</button><button v-on:click="stop(svc)">stop</button><br/>
+            <td>
+                <button v-on:click="redeploy(svc)">redeploy</button>
+                <button v-on:click="stop(svc)">stop</button>
+                <br/>
                 <span style="color:red" v-if="svc.deployment_status.update_state == 'updating'">
-                            updating
-                    </span>
+                    updating
+                </span>
             </td>
         </tr>
     </template>
@@ -44,6 +53,7 @@
 <script>
     var request = superagent;
     let apiHost = "{{ .APIHost }}";
+    let token = localStorage.getItem("token");
 
     let vm = new Vue({
         el: '#app',
@@ -54,7 +64,7 @@
             services: []
         },
         mounted: function () {
-            this.page_load();
+            this.pageLoad();
         },
         methods: {
             redeploy: function (svc) {
@@ -63,9 +73,10 @@
                 let url = apiHost + '/v1/clusters/' + self.selected_cluster + '/services/' + svc.name + "/redeploy"
                 request
                     .post(url)
+                    .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert('Oh no! error');
+                            httpErrorHandler(err, resp)
                         }
                     });
             },
@@ -75,38 +86,47 @@
                 let url = apiHost + '/v1/clusters/' + self.selected_cluster + '/services/' + svc.name + "/stop"
                 request
                     .post(url)
+                    .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert('Oh no! error');
+                            httpErrorHandler(err, resp)
                         }
                     });
             },
-            page_load: function () {
-                console.log("page_load")
+            pageLoad: function () {
+                console.log("pageLoad")
                 let self = this;
+
+                checkToken(token);
 
                 // get clusters
                 request
                     .get(apiHost + '/v1/clusters')
+                    .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert('oh no! error');
+                            httpErrorHandler(err, resp)
                         } else {
                             self.clusters = resp.body.data
 
+                            self.selected_cluster = getParameterByName('cluster');
+                            if (self.clusters.length > 0 && _.isEmpty(self.selected_cluster)) {
+                                self.selected_cluster = self.clusters[0].name;
+                            }
+
+                            self.reload();
                         }
                     });
-
-                self.reload();
             },
             reload: function () {
                 console.log("reload")
                 let self = this;
                 request
                     .get(apiHost + '/v1/clusters/' + self.selected_cluster + '/services')
+                    .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert('Oh no! error');
+                            httpErrorHandler(err, resp)
                         } else {
                             self.services = resp.body.data
                         }
@@ -115,5 +135,4 @@
         }
     });
 
-</script>
-{{end}}
+</script> {{end}}

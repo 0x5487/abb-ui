@@ -1,7 +1,9 @@
 {{template "layout" .}} {{define "head"}}
 <title>Service Detail</title>
 {{ end}} {{define "content"}} {{template "service_navbar" .}}
-<h3><span id="lblMessage">${ message }</span></h3>
+<h3>
+    <span id="lblMessage">${ message }</span>
+</h3>
 <div id="detail">
     <textarea id="txtCode" style="width: 1000; height: 600" v-model="service">
         
@@ -38,6 +40,7 @@
     let apiHost = "{{ .APIHost }}";
     let cID = "{{ .ClusterID }}";
     let svcID = "{{ .ServiceID }}";
+    let token = localStorage.getItem("token");
 
     let vm = new Vue({
         el: '#app',
@@ -55,6 +58,8 @@
                 console.log("=== begin pageLoad ===")
                 let self = this;
 
+                checkToken(token);
+
                 self.getService(cID, svcID);
                 self.getTasks(cID, svcID);
             },
@@ -71,11 +76,11 @@
 
                 request
                     .put(apiHost + '/v1/clusters/' + cID + '/services/' + svcID)
-                    .set('Content-Type', 'application/json')
+                    .set({ "Authorization": token })
                     .send(svcJSON)
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert(err);
+                            httpErrorHandler(err, resp)
                         } else {
                             self.message = "success";
                         }
@@ -87,9 +92,10 @@
                 // get service
                 request
                     .get(apiHost + '/v1/clusters/' + clusterID + '/services/' + serviceID)
+                    .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert(err);
+                            httpErrorHandler(err, resp)
                         } else {
                             self.service = JSON.stringify(resp.body, null, 2);
                         }
@@ -103,9 +109,10 @@
                 // list task
                 request
                     .get(apiHost + '/v1/clusters/' + clusterID + '/tasks?service_id=' + serviceID)
+                    .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert(err);
+                            httpErrorHandler(err, resp)
                         } else {
                             self.tasks = resp.body.data
 
@@ -114,11 +121,8 @@
                             });
                         }
                     });
-
-
             }
         }
     });
 
-</script>
-{{end}}
+</script> {{end}}

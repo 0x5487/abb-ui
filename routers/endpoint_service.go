@@ -11,6 +11,8 @@ import (
 func NewRouter() *napnap.Router {
 	router := napnap.NewRouter()
 
+	router.Get("/", loginEndpoint)
+
 	// service
 	router.Get("/services/:service_id", serviceDetailEndpoint)
 	router.Get("/services/:service_id/logs", serviceLogsGetEndpoint)
@@ -19,16 +21,26 @@ func NewRouter() *napnap.Router {
 	return router
 }
 
+func loginEndpoint(c *napnap.Context) {
+	model := types.LoginModel{}
+	model.PageData.APIHost = template.JS(_config.APIHost)
+
+	err := c.Render(200, "login.html", model)
+	if err != nil {
+		log.Errorf("list render err: %v", err)
+	}
+}
+
 func serviceListEndpoint(c *napnap.Context) {
 	log.Debug("serviceListEndpoint")
 	clusterName := c.Query("cluster")
 
-	pageData := types.ServiceListPageData{
+	model := types.ServiceListPageData{
 		ClusterID: clusterName,
-		APIHost:   template.JS(_config.APIHost),
 	}
+	model.PageData.APIHost = template.JS(_config.APIHost)
 
-	err := c.Render(200, "service_list.html", pageData)
+	err := c.Render(200, "service_list.html", model)
 	if err != nil {
 		log.Errorf("list render err: %v", err)
 	}
@@ -39,13 +51,13 @@ func serviceDetailEndpoint(c *napnap.Context) {
 	serviceID := c.Param("service_id")
 	clusterName := c.Query("cluster")
 
-	pageData := types.ServiceGetPageData{
+	model := types.ServiceGetPageData{
 		ClusterID: clusterName,
 		ServiceID: serviceID,
-		APIHost:   template.JS(_config.APIHost),
 	}
+	model.PageData.APIHost = template.JS(_config.APIHost)
 
-	err := c.Render(200, "service_detail.html", pageData)
+	err := c.Render(200, "service_detail.html", model)
 	if err != nil {
 		log.Error(err)
 	}
@@ -56,13 +68,13 @@ func serviceLogsGetEndpoint(c *napnap.Context) {
 	serviceID := c.Param("service_id")
 	clusterID := c.Query("cluster")
 
-	pageData := types.ServiceGetPageData{
+	model := types.ServiceGetPageData{
 		ClusterID: clusterID,
 		ServiceID: serviceID,
-		APIHost:   template.JS(_config.APIHost),
 	}
+	model.PageData.APIHost = template.JS(_config.APIHost)
 
-	err := c.Render(200, "service_logs.html", pageData)
+	err := c.Render(200, "service_logs.html", model)
 	if err != nil {
 		log.Error(err)
 	}

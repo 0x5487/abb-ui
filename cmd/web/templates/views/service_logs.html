@@ -12,6 +12,7 @@
     let apiHost = "{{ .APIHost }}";
     let clusterID = "{{ .ClusterID }}";
     let serviceID = "{{ .ServiceID }}";
+    let token = localStorage.getItem("token");
 
     let vm = new Vue({
         el: '#app',
@@ -27,6 +28,7 @@
                 console.log("pageLoad")
                 let self = this;
 
+                checkToken(token);
                 self.getServiceLogs();
             },
             getServiceLogs: function () {
@@ -34,9 +36,10 @@
                 let self = this;
                 request
                     .get(apiHost + '/v1/clusters/' + clusterID + '/services/' + serviceID + '/logs')
+                    .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
-                            alert('Oh no! error');
+                            httpErrorHandler(err, resp)
                         } else {
                             self.logs = "";
                             var lines = resp.text.split('\n');
@@ -49,8 +52,4 @@
         }
     });
 
-</script>
-
-
-
-{{end}}
+</script> {{end}}

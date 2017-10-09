@@ -1,0 +1,70 @@
+{{template "layout" .}} {{define "head"}}
+<title>Login</title>
+{{ end}} {{define "content"}}
+
+
+<div>
+    <span>Username:</span>
+    <div>
+        <input type="text" placeholder="Username" id="username" name="username" v-model="username">
+    </div>
+</div>
+<div>
+    <span>password:</span>
+    <div>
+
+        <input type="password" placeholder="password" id="password" name="password" v-model="password">
+    </div>
+</div>
+<button v-on:click="login()">Login</button>
+
+
+{{end}} {{define "js"}}
+<script>
+    var request = superagent;
+    let apiHost = "{{ .APIHost }}";
+
+    let vm = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            username: "",
+            password: ""
+        },
+        mounted: function () {
+            this.pageLoad();
+        },
+        methods: {
+            pageLoad: function () {
+                console.log("=== begin pageLoad ===")
+                let self = this;
+
+                // check a token exits or not
+                let token = localStorage.getItem("token");
+                if (token != null) {
+                    window.location = "/services";
+                }
+            },
+            login: function () {
+                let self = this;
+
+                request
+                    .post(apiHost + '/v1/token')
+                    .type('form')
+                    .send('grant_type=password')
+                    .send('username=' + self.username)
+                    .send('password=' + self.password)
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            alert(err);
+                        } else {
+                            token = resp.body.access_token
+                            localStorage.setItem("token", token)
+                            window.location = "/services";
+                        }
+                    });
+            }
+        }
+    });
+
+</script> {{end}}
