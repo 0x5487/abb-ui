@@ -3,7 +3,7 @@
 {{ end}} {{define "content"}}
 <div>
     <span>clusters:</span>
-    <select v-model="selected_cluster">
+    <select v-model="selected_cluster" v-on:change="clusterChanged">
         <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
     </select>
 </div>
@@ -131,6 +131,11 @@
                             self.services = resp.body.data
                         }
                     });
+            },
+            clusterChanged: function () {
+                console.log("clusterChanged")
+                let self = this;
+                self.reload();
             }
         }
     });
