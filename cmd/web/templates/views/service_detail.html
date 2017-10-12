@@ -12,21 +12,30 @@
         <button v-on:click="save()">Save</button>
     </p>
 
-    <p>Tasks</p>
+    <p>
+        <span>Tasks</span>
+        <span>
+            <input type="checkbox" v-on:click="getTasks()" v-model="showAllTasks" /> Show all tasks
+        </span>
+    </p>
     <div id="tasks">
         <table border=1>
             <tr>
-                <td>name</td>
+                <td>id</td>
+                <td>slot</td>
+                <td>node</td>
                 <td>state</td>
                 <td>age</td>
-                <td>message</td>
+                <td>error message</td>
             </tr>
             <template v-for="task in tasks">
                 <tr>
-                    <td>${ task.name } </td>
+                    <td>${ task.id } </td>
+                    <td>${ task.slot } </td>
+                    <td>${ task.node } </td>
                     <td>${ task.status.state }</td>
                     <td>${ task.age} </td>
-                    <td>${ task.status.message }</td>
+                    <td>${ task.status.error }</td>
                 </tr>
             </template>
 
@@ -48,7 +57,8 @@
         data: {
             message: "",
             service: "",
-            tasks: []
+            tasks: [],
+            showAllTasks: false
         },
         mounted: function () {
             this.pageLoad();
@@ -61,7 +71,7 @@
                 checkToken(token);
 
                 self.getService(cID, svcID);
-                self.getTasks(cID, svcID);
+                self.getTasks();
             },
             save: function () {
                 let self = this;
@@ -103,12 +113,17 @@
 
 
             },
-            getTasks: function (clusterID, serviceID) {
+            getTasks: function () {
                 console.log("=== begin getTasks ===")
                 let self = this;
                 // list task
+                apiUrl = apiHost + '/v1/clusters/' + cID + '/tasks?service_id=' + svcID
+                if (self.showAllTasks == false) {
+                    apiUrl += "&desired-state=running"
+                }
+
                 request
-                    .get(apiHost + '/v1/clusters/' + clusterID + '/tasks?service_id=' + serviceID)
+                    .get(apiUrl)
                     .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
