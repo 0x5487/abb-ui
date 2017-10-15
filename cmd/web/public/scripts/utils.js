@@ -7,7 +7,7 @@ function checkToken(token) {
 function httpErrorHandler(err, resp) {
     if (resp.statusCode == 401) {
         localStorage.removeItem("token")
-        windows.location = "/"
+        window.location = "/"
     }
     alert(err);
 }

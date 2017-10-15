@@ -42,7 +42,16 @@
                 // check a token exits or not
                 let token = localStorage.getItem("token");
                 if (token != null) {
-                    window.location = "/services";
+                    request
+                        .get(apiHost + '/v1/me')
+                        .set({ "Authorization": token })
+                        .end(function (err, resp) {
+                            if (err || !resp.ok) {
+                                httpErrorHandler(err, resp)
+                            } else {
+                                window.location = "/services";
+                            }
+                        });
                 }
             },
             login: function () {

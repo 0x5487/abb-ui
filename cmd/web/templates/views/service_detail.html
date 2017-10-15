@@ -15,11 +15,11 @@
     <p>
         <span>Tasks</span>
         <span>
-            <input type="checkbox" v-on:click="getTasks()" v-model="showAllTasks" /> Show all tasks
+            <input type="checkbox" v-on:click="getTasks()" /> Show all tasks
         </span>
     </p>
     <div id="tasks">
-        <table border=1>
+        <table border="1">
             <tr>
                 <td>id</td>
                 <td>slot</td>
@@ -120,6 +120,9 @@
                 apiUrl = apiHost + '/v1/clusters/' + cID + '/tasks?service_id=' + svcID
                 if (self.showAllTasks == false) {
                     apiUrl += "&desired-state=running"
+                    self.showAllTasks = true
+                } else {
+                    self.showAllTasks = false
                 }
 
                 request
