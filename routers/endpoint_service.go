@@ -18,6 +18,11 @@ func NewRouter() *napnap.Router {
 	router.Get("/services/:service_id/logs", serviceLogsGetEndpoint)
 	router.Get("/services", serviceListEndpoint)
 
+	// config
+	router.Get("/configs", configListEndpoint)
+	router.Get("/configs/:config_id", configDetailEndpoint)
+	router.Get("/configs/create", configCreateEndpoint)
+
 	return router
 }
 
@@ -28,6 +33,53 @@ func loginEndpoint(c *napnap.Context) {
 	err := c.Render(200, "login.html", model)
 	if err != nil {
 		log.Errorf("list render err: %v", err)
+	}
+}
+
+func configCreateEndpoint(c *napnap.Context) {
+	log.Debug("configCreateEndpoint")
+	clusterName := c.Query("cluster")
+
+	model := types.ConfigPageData{
+		ClusterID: clusterName,
+	}
+	model.PageData.APIHost = template.JS(_config.APIHost)
+
+	err := c.Render(200, "config_create.html", model)
+	if err != nil {
+		log.Errorf("list render err: %v", err)
+	}
+}
+
+func configListEndpoint(c *napnap.Context) {
+	log.Debug("configListEndpoint")
+	clusterName := c.Query("cluster")
+
+	model := types.ServiceListPageData{
+		ClusterID: clusterName,
+	}
+	model.PageData.APIHost = template.JS(_config.APIHost)
+
+	err := c.Render(200, "config_list.html", model)
+	if err != nil {
+		log.Errorf("list render err: %v", err)
+	}
+}
+
+func configDetailEndpoint(c *napnap.Context) {
+	log.Debug("configDetailEndpoint")
+	configID := c.Param("config_id")
+	clusterName := c.Query("cluster")
+
+	model := types.ConfigGetPageData{
+		ClusterID: clusterName,
+		ConfigID:  configID,
+	}
+	model.PageData.APIHost = template.JS(_config.APIHost)
+
+	err := c.Render(200, "config_detail.html", model)
+	if err != nil {
+		log.Error(err)
 	}
 }
 

@@ -1,0 +1,56 @@
+{{template "layout" .}} {{define "head"}}
+<title>Config Detail</title>
+{{ end}} {{define "content"}}
+
+<div id="detail">
+    Base64 format
+    <br/>
+    <textarea id="txtCode" style="width: 1000; height: 600" v-model="data">
+    </textarea>
+</div>
+
+{{end}} {{define "js"}}
+<script>
+    var request = superagent;
+    let apiHost = "{{ .APIHost }}";
+    let cID = "{{ .ClusterID }}";
+    let configID = "{{ .ConfigID }}";
+    let token = localStorage.getItem("token");
+
+    let vm = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            data: ""
+        },
+        mounted: function () {
+            this.pageLoad();
+        },
+        methods: {
+            pageLoad: function () {
+                console.log("=== begin pageLoad ===")
+                let self = this;
+
+                checkToken(token);
+
+                self.getConfig(cID, configID);
+            },
+            getConfig: function (clusterID, configID) {
+                console.log("=== begin getConfig ===")
+                let self = this;
+                // get service
+                request
+                    .get(apiHost + '/v1/clusters/' + clusterID + '/configs/' + configID)
+                    .set({ "Authorization": token })
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            httpErrorHandler(err, resp)
+                        } else {
+                            self.data = resp.body.data
+                        }
+                    });
+            }
+        }
+    });
+
+</script> {{end}}

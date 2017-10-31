@@ -20,3 +20,15 @@ type ServiceGetPageData struct {
 type LoginModel struct {
 	PageData
 }
+
+type ConfigPageData struct {
+	PageData
+	ClusterID string
+	ConfigID  string
+}
+
+type ConfigGetPageData struct {
+	PageData
+	ClusterID string
+	ConfigID  string
+}

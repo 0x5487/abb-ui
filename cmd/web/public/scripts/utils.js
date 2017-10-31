@@ -8,6 +8,8 @@ function httpErrorHandler(err, resp) {
     if (resp.statusCode == 401) {
         localStorage.removeItem("token")
         window.location = "/"
+        alert("your token was expired.");
+        return;
     }
     alert(err);
 }

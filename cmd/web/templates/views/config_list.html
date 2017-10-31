@@ -6,47 +6,25 @@
     <select v-model="selected_cluster" v-on:change="clusterChanged">
         <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
     </select>
-    <a :href="'/configs??cluster=' + selected_cluster">Configs</a>
+    <a :href="'/services??cluster=' + selected_cluster">services</a>
 </div>
-
-
-
 <hr/>
-<span>Service Lists</span>
+<span>Config Lists</span>
 <button v-on:click="reload()">reload</button>
-<table border=1>
+<a :href="'/configs/create?cluster=' + selected_cluster">create</a>
+<table border="1">
     <tr>
-        <td>status</td>
+        <td>id</td>
         <td>name</td>
-        <td>image</td>
-        <td>mode</td>
-        <td>ports</td>
-        <td></td>
+        <td>created_at</td>
     </tr>
-    <template v-for="svc in services">
+    <template v-for="config in configs">
         <tr>
-            <td>${ svc.deployment_status.available_replicas}/${ svc.deployment_status.replicas}</td>
+            <td>${ config.id }</td>
             <td>
-                <a :href="'/services/' + svc.name + '?cluster=' + selected_cluster">${ svc.name }</a>
+                <a :href="'/configs/' + config.name + '?cluster=' + selected_cluster">${ config.name }</a>
             </td>
-            <td>${ svc.spec.image}
-                <br/>
-                <span style="color:gray"> ${ svc.deployment_status.image}</span>
-            </td>
-            <td>${ svc.spec.deploy.mode}</td>
-            <td>
-                <span v-for="port in svc.spec.ports">
-                    ${ port.published }:${ port.target}
-                </span>
-                <br/>
-            </td>
-            <td>
-                <button v-on:click="redeploy(svc)">redeploy</button>
-                <button v-on:click="stop(svc)">stop</button>
-                <br/>
-                <span style="color:red" v-if="svc.deployment_status.update_state == 'updating'">
-                    updating
-                </span>
+            <td>${ config.created_at}
             </td>
         </tr>
     </template>
@@ -64,38 +42,12 @@
         data: {
             selected_cluster: "{{ .ClusterID }}",
             clusters: [],
-            services: []
+            configs: []
         },
         mounted: function () {
             this.pageLoad();
         },
         methods: {
-            redeploy: function (svc) {
-                console.log("redeploy")
-                let self = this;
-                let url = apiHost + '/v1/clusters/' + self.selected_cluster + '/services/' + svc.name + "/redeploy"
-                request
-                    .post(url)
-                    .set({ "Authorization": token })
-                    .end(function (err, resp) {
-                        if (err || !resp.ok) {
-                            httpErrorHandler(err, resp)
-                        }
-                    });
-            },
-            stop: function (svc) {
-                console.log("stop")
-                let self = this;
-                let url = apiHost + '/v1/clusters/' + self.selected_cluster + '/services/' + svc.name + "/stop"
-                request
-                    .post(url)
-                    .set({ "Authorization": token })
-                    .end(function (err, resp) {
-                        if (err || !resp.ok) {
-                            httpErrorHandler(err, resp)
-                        }
-                    });
-            },
             pageLoad: function () {
                 console.log("pageLoad")
                 let self = this;
@@ -124,15 +76,15 @@
             reload: function () {
                 console.log("reload")
                 let self = this;
-                self.services = [];
+                self.configs = [];
                 request
-                    .get(apiHost + '/v1/clusters/' + self.selected_cluster + '/services')
+                    .get(apiHost + '/v1/clusters/' + self.selected_cluster + '/configs')
                     .set({ "Authorization": token })
                     .end(function (err, resp) {
                         if (err || !resp.ok) {
                             httpErrorHandler(err, resp)
                         } else {
-                            self.services = resp.body.data
+                            self.configs = resp.body.data
                         }
                     });
             },

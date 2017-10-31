@@ -1,0 +1,61 @@
+{{template "layout" .}} {{define "head"}}
+<title>Config Detail</title>
+{{ end}} {{define "content"}}
+
+<div id="detail">
+    Name:
+    <input type="text" id="txtName" v-model="name">
+    </textbox>
+    <br/> Body: (base64 only)
+    <br/>
+    <textarea id="txtCode" style="width: 1000; height: 600" v-model="data">
+    </textarea>
+    <p>
+        <button v-on:click="save()">Save</button>
+    </p>
+</div>
+
+{{end}} {{define "js"}}
+<script>
+    var request = superagent;
+    let apiHost = "{{ .APIHost }}";
+    let cID = "{{ .ClusterID }}";
+    let token = localStorage.getItem("token");
+
+    let vm = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            name: "",
+            data: ""
+        },
+        mounted: function () {
+            this.pageLoad();
+        },
+        methods: {
+            pageLoad: function () {
+                console.log("=== begin pageLoad ===")
+                let self = this;
+
+                checkToken(token);
+            },
+            save: function () {
+                console.log("=== begin save ===")
+                let self = this;
+
+                request
+                    .post(apiHost + '/v1/clusters/' + cID + '/configs')
+                    .set({ "Authorization": token })
+                    .send({ name: self.name.trim(), data: self.data.trim() })
+                    .end(function (err, resp) {
+                        if (err || !resp.ok) {
+                            httpErrorHandler(err, resp)
+                        } else {
+                            window.location = "/configs"
+                        }
+                    });
+            }
+        }
+    });
+
+</script> {{end}}
