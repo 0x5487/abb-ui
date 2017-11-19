@@ -6,7 +6,7 @@
     <select v-model="selected_cluster" v-on:change="clusterChanged">
         <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
     </select>
-    <a :href="'/configs??cluster=' + selected_cluster">Configs</a>
+    <a :href="'/configs?cluster=' + selected_cluster">Configs</a>
 </div>
 
 
@@ -37,6 +37,7 @@
             <td>
                 <span v-for="port in svc.spec.ports">
                     ${ port.published }:${ port.target}
+                    <br/>
                 </span>
                 <br/>
             </td>

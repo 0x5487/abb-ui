@@ -26,7 +26,7 @@
                 <td>node</td>
                 <td>state</td>
                 <td>age</td>
-                <td>error message</td>
+                <td>message</td>
             </tr>
             <template v-for="task in tasks">
                 <tr>
@@ -35,7 +35,7 @@
                     <td>${ task.node } </td>
                     <td>${ task.status.state }</td>
                     <td>${ task.age} </td>
-                    <td>${ task.status.error }</td>
+                    <td>${ task.status.message }</td>
                 </tr>
             </template>
 
