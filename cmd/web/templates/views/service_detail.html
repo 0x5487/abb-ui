@@ -4,42 +4,46 @@
 <h3>
     <span id="lblMessage">${ message }</span>
 </h3>
-<div id="detail">
-    <textarea id="txtCode" style="width: 1000; height: 600" v-model="service">
-        
-    </textarea>
-    <p>
-        <button v-on:click="save()">Save</button>
-    </p>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div id="detail">
+                <textarea id="txtCode" style="width: 1000; height: 600" v-model="service"></textarea>
+                <p>
+                    <button v-on:click="save()">Save</button>
+                </p>
 
-    <p>
-        <span>Tasks</span>
-        <span>
-            <input type="checkbox" v-on:click="getTasks()" /> Show all tasks
-        </span>
-    </p>
-    <div id="tasks">
-        <table border="1">
-            <tr>
-                <td>id</td>
-                <td>slot</td>
-                <td>node</td>
-                <td>state</td>
-                <td>age</td>
-                <td>message</td>
-            </tr>
-            <template v-for="task in tasks">
-                <tr>
-                    <td>${ task.id } </td>
-                    <td>${ task.slot } </td>
-                    <td>${ task.node } </td>
-                    <td>${ task.status.state }</td>
-                    <td>${ task.age} </td>
-                    <td>${ task.status.message }</td>
-                </tr>
-            </template>
+                <p>
+                    <span>Tasks</span>
+                    <span>
+                        <input type="checkbox" v-on:click="getTasks()" /> Show all tasks
+                    </span>
+                </p>
+                <div id="tasks">
+                    <table border="1">
+                        <tr>
+                            <td>id</td>
+                            <td>slot</td>
+                            <td>node</td>
+                            <td>state</td>
+                            <td>age</td>
+                            <td>message</td>
+                        </tr>
+                        <template v-for="task in tasks">
+                            <tr>
+                                <td>${ task.id } </td>
+                                <td>${ task.slot } </td>
+                                <td>${ task.node } </td>
+                                <td>${ task.status.state }</td>
+                                <td>${ task.age} </td>
+                                <td>${ task.status.message }</td>
+                            </tr>
+                        </template>
 
-        </table>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

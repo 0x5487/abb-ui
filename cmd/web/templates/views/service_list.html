@@ -1,58 +1,70 @@
 {{template "layout" .}} {{define "head"}}
 <title>Service List</title>
 {{ end}} {{define "content"}}
-<div>
-    <span>clusters:</span>
-    <select v-model="selected_cluster" v-on:change="clusterChanged">
-        <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
-    </select>
-    <a :href="'/configs?cluster=' + selected_cluster">Configs</a>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <span>clusters:</span>
+            <select v-model="selected_cluster" v-on:change="clusterChanged">
+                <option v-for="cluster in clusters" v-bind:value="cluster.name">${ cluster.name }</option>
+            </select>
+            <a :href="'/configs?cluster=' + selected_cluster">Configs</a>
+        </div>
+        <div class="col text-right">
+            <span>
+                <button v-on:click="logout();">Logout</button>
+            </span>
+        </div>
+    </div>
 </div>
 
-
-
-<hr/>
-<span>Service Lists</span>
-<button v-on:click="reload()">reload</button>
-<table border=1>
-    <tr>
-        <td>status</td>
-        <td>name</td>
-        <td>image</td>
-        <td>mode</td>
-        <td>ports</td>
-        <td></td>
-    </tr>
-    <template v-for="svc in services">
-        <tr>
-            <td>${ svc.deployment_status.available_replicas}/${ svc.deployment_status.replicas}</td>
-            <td>
-                <a :href="'/services/' + svc.name + '?cluster=' + selected_cluster">${ svc.name }</a>
-            </td>
-            <td>${ svc.spec.image}
-                <br/>
-                <span style="color:gray"> ${ svc.deployment_status.image}</span>
-            </td>
-            <td>${ svc.spec.deploy.mode}</td>
-            <td>
-                <span v-for="port in svc.spec.ports">
-                    ${ port.published }:${ port.target}
-                    <br/>
-                </span>
-                <br/>
-            </td>
-            <td>
-                <button v-on:click="redeploy(svc)">redeploy</button>
-                <button v-on:click="stop(svc)">stop</button>
-                <br/>
-                <span style="color:red" v-if="svc.deployment_status.update_state == 'updating'">
-                    updating
-                </span>
-            </td>
-        </tr>
-    </template>
-
-</table>
+<hr></hr>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <span>Service Lists</span>
+            <button v-on:click="reload()">reload</button>
+            <table border="1">
+                <tr>
+                    <td>status</td>
+                    <td>name</td>
+                    <td>image</td>
+                    <td>mode</td>
+                    <td>ports</td>
+                    <td></td>
+                </tr>
+                <template v-for="svc in services">
+                    <tr>
+                        <td>${ svc.deployment_status.available_replicas}/${ svc.deployment_status.replicas}</td>
+                        <td>
+                            <a :href="'/services/' + svc.name + '?cluster=' + selected_cluster">${ svc.name }</a>
+                        </td>
+                        <td>${ svc.spec.image}
+                            <br/>
+                            <span style="color:gray"> ${ svc.deployment_status.image}</span>
+                        </td>
+                        <td>${ svc.spec.deploy.mode}</td>
+                        <td>
+                            <span v-for="port in svc.spec.ports">
+                                ${ port.published }:${ port.target}
+                                <br/>
+                            </span>
+                            <br/>
+                        </td>
+                        <td>
+                            <button v-on:click="redeploy(svc)">redeploy</button>
+                            <button v-on:click="stop(svc)">stop</button>
+                            <br/>
+                            <span style="color:red" v-if="svc.deployment_status.update_state == 'updating'">
+                                updating
+                            </span>
+                        </td>
+                    </tr>
+                </template>
+            </table>
+        </div>
+    </div>
+</div>
 {{end}} {{define "js"}}
 <script>
     var request = superagent;
@@ -141,6 +153,12 @@
                 console.log("clusterChanged")
                 let self = this;
                 self.reload();
+            },
+            logout: function () {
+                console.log("logout")
+                let self = this;
+                localStorage.removeItem("token")
+                window.location = "/"
             }
         }
     });
