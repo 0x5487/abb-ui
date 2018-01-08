@@ -2,23 +2,26 @@
 <title>Login</title>
 {{ end}} {{define "content"}}
 
+<div class="container">
+    <div class="row">
+        <div class="col text-center">
+            <div>
+                <span>Username:</span>
+                <div>
+                    <input type="text" placeholder="Username" id="username" name="username" v-model="username">
+                </div>
+            </div>
+            <div>
+                <span>password:</span>
+                <div>
 
-<div>
-    <span>Username:</span>
-    <div>
-        <input type="text" placeholder="Username" id="username" name="username" v-model="username">
+                    <input type="password" placeholder="password" id="password" name="password" v-model="password">
+                </div>
+            </div>
+            <button v-on:click="login()">Login</button>
+        </div>
     </div>
 </div>
-<div>
-    <span>password:</span>
-    <div>
-
-        <input type="password" placeholder="password" id="password" name="password" v-model="password">
-    </div>
-</div>
-<button v-on:click="login()">Login</button>
-
-
 {{end}} {{define "js"}}
 <script>
     var request = superagent;
